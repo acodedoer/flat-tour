@@ -1,0 +1,81 @@
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script>
+        AFRAME.registerComponent('tour', {
+                schema: {
+                txt: {default:'default'}
+                },        
+                init: function () {
+                   const data=[
+                       {name:"livingroom", id:"1", rotation:[0, -90, 0],icons:[{type:"arrow", position:[5, -5, -6], rotation:[90, 90, 0], to:"1"}]},
+
+                       {name:"corridor",id:"2", rotation:[0, 0, 0],icons:[{type:"arrow", position:[-4, -5, -20], rotation:[90, 180, 0], to:"0"}, {type:"arrow", position:[2.5, -5, 1], rotation: [90, 0, 0], to:"2"}]},
+
+                       {name:"out",id:"3", rotation:[0, -90, 0],icons:[{type:"arrow", position:[0, -5, 3], rotation:[90, 0, 0], to:"1"}, {type:"arrow", position:[2, -5, 0], rotation: [90, 90, 0], to:"3"}]},
+
+                       {name:"stairs",id:"4", rotation:[0, -90, 0],icons:[{type:"arrow", position:[6, -5, 0], rotation:[90, 90, 0], to:"2"}, {type:"arrow", position:[-2, -5, -6], rotation: [90, -90, 0], to:"4"}]},
+
+                       {name:"compound",id:"5", rotation:[0, -90, 0],icons:[{type:"arrow", position:[10, -5, -3], rotation:[90, 90, 0], to:"3"}]}
+                    ];
+                                
+                const icons=[];
+                const roomEl = document.createElement("a-sky");
+                const camera = document.getElementById("camera-rig");
+                this.el.appendChild(roomEl);
+                this.setRoom(data,4, icons, roomEl, this.el, camera);
+                },
+            
+                setRoom: function(data, index, icons, roomEl, sceneEl, cameraEl){                 
+                    roomEl.setAttribute("src",`#${data[index].name}`)
+                    cameraEl.object3D.rotation.x= data[index].rotation[0] * (Math.PI/180);
+                    cameraEl.object3D.rotation.y= data[index].rotation[1] * (Math.PI/180);
+                    cameraEl.object3D.rotation.z= data[index].rotation[2] * (Math.PI/180);
+                    for(let i = 0; i<icons.length;i++){
+                        this.el.sceneEl.removeChild(icons[i]);
+                    }
+
+                    icons=[]
+                    let roomData=data[index];
+                    for(let i =0; i<roomData.icons.length; i++){
+                        const icon = document.createElement("a-image");
+                        console.log(roomData)
+                        icon.setAttribute("src",`#${roomData.icons[i].type}`); 
+                        icon.setAttribute("position", `${roomData.icons[i].position[0]} ${roomData.icons[i].position[1]} ${roomData.icons[i].position[2]}`);
+                        icon.setAttribute("animation","property:scale; from:1 1 1; to: 2 2 2; dur: 1000; loop:true; dir:alternate");
+                        icon.setAttribute("rotation", `${roomData.icons[i].rotation[0]} ${roomData.icons[i].rotation[1]} ${roomData.icons[i].rotation[2]}`);
+                        icon.addEventListener("click", ()=>{
+                            console.log("Clicked")
+                            this.setRoom(data,parseInt(roomData.icons[i].to), icons, roomEl,sceneEl,cameraEl)
+                            cameraEl.object3D.rotation.x=0;
+                            cameraEl.object3D.rotation.y=0;
+                            cameraEl.object3D.rotation.z=0;
+                        })
+                        console.log(icon)
+                        icons.push(icon);
+                        sceneEl.appendChild(icon);
+                    }
+                }
+            });
+</script>
+  </head>
+  <body>
+    <a-scene tour>
+        <a-assets>
+            <img id="livingroom" src="./livingroom.jpg">
+            <img id="compound" src="./compound.jpg">
+            <img id="corridor" src="./corridor.jpg">
+            <img id="stairs" src="./stairs.jpg">
+            <img id="out" src="./out.jpg">
+            <img id="arrow" src="./arrow.png">
+        </a-assets>
+        <a-entity cursor="rayOrigin:mouse"></a-entity>
+        <a-entity id="camera-rig">
+            <a-camera  look-controls-enabled="true" position="0 1.6 0"></a-camera>
+        </a-entity>
+      <!-- <a-sky id="tour-image" src="compound.jpg"></a-sky>
+      
+      <a-image clickhandler src="arrow.png" color="white" rotation="90 90 0" animation="property:scale; from:1 1 1; to: 2 2 2; dur: 1000; loop:true; dir:alternate"  position="10 -5 -3"></a-image> -->
+    </a-scene>
+  </body>
+</html>
