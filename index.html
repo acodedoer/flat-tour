@@ -1,6 +1,6 @@
 <html>
   <head>
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="./playbox-virtual-tour-aframe.js"></script>
     <script>
         AFRAME.registerComponent('tour', {
                 schema: {
@@ -8,26 +8,22 @@
                 },        
                 init: function () {
                    const data=[
-                       {name:"livingroom", id:"1", rotation:[0, -90, 0],icons:[{type:"arrow", position:[5, -5, -6], rotation:[90, 90, 0], to:"1"}]},
-
-                       {name:"corridor",id:"2", rotation:[0, 0, 0],icons:[{type:"arrow", position:[-4, -5, -20], rotation:[90, 180, 0], to:"0"}, {type:"arrow", position:[2.5, -5, 1], rotation: [90, 0, 0], to:"2"}]},
-
-                       {name:"out",id:"3", rotation:[0, -90, 0],icons:[{type:"arrow", position:[0, -5, 3], rotation:[90, 0, 0], to:"1"}, {type:"arrow", position:[2, -5, 0], rotation: [90, 90, 0], to:"3"}]},
-
-                       {name:"stairs",id:"4", rotation:[0, -90, 0],icons:[{type:"arrow", position:[6, -5, 0], rotation:[90, 90, 0], to:"2"}, {type:"arrow", position:[-2, -5, -6], rotation: [90, -90, 0], to:"4"}]},
-
-                       {name:"compound",id:"5", rotation:[0, -90, 0],icons:[{type:"arrow", position:[10, -5, -3], rotation:[90, 90, 0], to:"3"}]}
+                       {name:"livingroom", id:"1", rotation:[0, -95, 0],icons:[{type:"arrow", position:[10, -10, -9.5], rotation:[90, 90, 0], to:"1"}]},
+                       {name:"corridor",id:"2", rotation:[0, 0, 0],icons:[{type:"arrow", position:[-4, -8, -15], rotation:[90, 180, 0], to:"0"}, {type:"arrow", position:[2.5, -5, 1], rotation: [90, 0, 0], to:"2"}]},
+                       {name:"stairs",id:"3", rotation:[0, -90, 3],icons:[{type:"arrow", position:[18, 0, -1], rotation:[0, 90, 0], to:"1"}]}
                     ];
                                 
                 const icons=[];
                 const roomEl = document.createElement("a-sky");
                 const camera = document.getElementById("camera-rig");
                 this.el.appendChild(roomEl);
-                this.setRoom(data,4, icons, roomEl, this.el, camera);
+                this.setRoom(data,0, icons, roomEl, this.el, camera);
                 },
             
                 setRoom: function(data, index, icons, roomEl, sceneEl, cameraEl){                 
                     roomEl.setAttribute("src",`#${data[index].name}`)
+                    roomEl.setAttribute("radius",`20`)
+                    // roomEl.setAttribute("scale", "0.1, 0.1, -0.1")
                     cameraEl.object3D.rotation.x= data[index].rotation[0] * (Math.PI/180);
                     cameraEl.object3D.rotation.y= data[index].rotation[1] * (Math.PI/180);
                     cameraEl.object3D.rotation.z= data[index].rotation[2] * (Math.PI/180);
@@ -47,9 +43,12 @@
                         icon.addEventListener("click", ()=>{
                             console.log("Clicked")
                             this.setRoom(data,parseInt(roomData.icons[i].to), icons, roomEl,sceneEl,cameraEl)
-                            cameraEl.object3D.rotation.x=0;
-                            cameraEl.object3D.rotation.y=0;
-                            cameraEl.object3D.rotation.z=0;
+                            let controls = document.querySelector('a-camera').components['look-controls']
+                            controls.pitchObject.rotation.x = 0
+                            controls.yawObject.rotation.y = 0
+                            // cameraEl.object3D.rotation.x=0;
+                            // cameraEl.object3D.rotation.y=0;
+                            // cameraEl.object3D.rotation.z=0;
                         })
                         console.log(icon)
                         icons.push(icon);
@@ -60,10 +59,10 @@
 </script>
   </head>
   <body>
-    <a-scene tour>
+    <a-scene vr-mode-ui="enterARButton: #myEnterARButton" tour>
+        <a id="myEnterARButton" href="#"></a>
         <a-assets>
             <img id="livingroom" src="./livingroom.jpg">
-            <img id="compound" src="./compound.jpg">
             <img id="corridor" src="./corridor.jpg">
             <img id="stairs" src="./stairs.jpg">
             <img id="out" src="./out.jpg">
@@ -71,7 +70,9 @@
         </a-assets>
         <a-entity cursor="rayOrigin:mouse"></a-entity>
         <a-entity id="camera-rig">
-            <a-camera  look-controls-enabled="true" position="0 1.6 0"></a-camera>
+            <a-camera  look-controls-enabled="true" position="0 1.6 0">
+                <a-sphere material="src:#livingroom" scale="0.1 0.1 0.1" position="0 -1.5 -2"></a-sphere>
+            </a-camera>
         </a-entity>
       <!-- <a-sky id="tour-image" src="compound.jpg"></a-sky>
       
