@@ -9,33 +9,81 @@
                 init: function () {
                    const data=[
                        {name:"livingroom", id:"1", rotation:[0, -95, 0],icons:[{type:"arrow", position:[10, -10, -9.5], rotation:[90, 90, 0], to:"1"}]},
-                       {name:"corridor",id:"2", rotation:[0, 0, 0],icons:[{type:"arrow", position:[-4, -8, -15], rotation:[90, 180, 0], to:"0"}, {type:"arrow", position:[2.5, -5, 1], rotation: [90, 0, 0], to:"2"}]},
+                       {name:"corridor",id:"2", rotation:[0, 0, 0],icons:[{type:"arrow", position:[-4, -8, -15], rotation:[90, 180, 0], to:"0"}]},
                        {name:"stairs",id:"3", rotation:[0, -90, 3],icons:[{type:"arrow", position:[18, 0, -1], rotation:[0, 90, 0], to:"1"}]}
                     ];
                                 
                 const icons=[];
                 const roomEl = document.createElement("a-sky");
                 const camera = document.getElementById("camera-rig");
+
                 this.el.appendChild(roomEl);
-                this.setRoom(data,0, icons, roomEl, this.el, camera);
+                this.setRoom(data,2, icons, roomEl, this.el, camera);
                 },
             
                 setRoom: function(data, index, icons, roomEl, sceneEl, cameraEl){                 
                     roomEl.setAttribute("src",`#${data[index].name}`)
                     roomEl.setAttribute("radius",`20`)
-                    // roomEl.setAttribute("scale", "0.1, 0.1, -0.1")
+                    const sphere1 = document.createElement("a-sphere");
+                    const sphere2 = document.createElement("a-sphere");
+                    const sphere3 = document.createElement("a-sphere");
+                    sphere1.setAttribute("material", "src:#stairs");
+                    sphere1.setAttribute("rotation", "0 90 0");
+                    sphere1.setAttribute("scale", "0.1 0.1 0.1");
+                    sphere1.setAttribute("position", "-0.3 -1.5 -2");
+                    
+                    sphere2.setAttribute("material", "src:#corridor");
+                    sphere2.setAttribute("rotation", "0 180 0");
+                    sphere2.setAttribute("scale", "0.1 0.1 0.1");
+                    sphere2.setAttribute("position", "0 -1.5 -2");
+
+                    sphere3.setAttribute("material", "src:#livingroom");
+                    sphere3.setAttribute("rotation", "0 180 0");
+                    sphere3.setAttribute("scale", "0.1 0.1 0.1");
+                    sphere3.setAttribute("position", "0.3 -1.5 -2");
+
+                    document.getElementById("camera").appendChild(sphere1);
+                    document.getElementById("camera").appendChild(sphere2);
+                    document.getElementById("camera").appendChild(sphere3);
                     cameraEl.object3D.rotation.x= data[index].rotation[0] * (Math.PI/180);
                     cameraEl.object3D.rotation.y= data[index].rotation[1] * (Math.PI/180);
                     cameraEl.object3D.rotation.z= data[index].rotation[2] * (Math.PI/180);
-                    for(let i = 0; i<icons.length;i++){
-                        this.el.sceneEl.removeChild(icons[i]);
+                    // for(let i = 0; i<icons.length;i++){
+                    //     this.el.sceneEl.removeChild(icons[i]);
+                    // }
+                    const arrows = document.getElementsByClassName("arrow")
+                    for (let arrow of arrows) {
+                        this.el.sceneEl.removeChild(arrow);
                     }
-
+                    console.log(arrows)
                     icons=[]
                     let roomData=data[index];
+                    sphere1.addEventListener("click", ()=>{
+                        this.setRoom(data,2, icons, roomEl,sceneEl,cameraEl)
+                        let controls = document.querySelector('a-camera').components['look-controls']
+                        controls.pitchObject.rotation.x = 0 
+                        controls.yawObject.rotation.y = 0
+                    })
+
+                    sphere2.addEventListener("click", ()=>{
+                        this.setRoom(data,1, icons, roomEl,sceneEl,cameraEl)
+                        let controls = document.querySelector('a-camera').components['look-controls']
+                        controls.pitchObject.rotation.x = 0 
+                        controls.yawObject.rotation.y = 0
+                    })
+
+                    sphere3.addEventListener("click", ()=>{
+                        this.setRoom(data,0, icons, roomEl,sceneEl,cameraEl)
+                        let controls = document.querySelector('a-camera').components['look-controls']
+                        controls.pitchObject.rotation.x = 0 
+                        controls.yawObject.rotation.y = 0
+                    })
+
+
                     for(let i =0; i<roomData.icons.length; i++){
                         const icon = document.createElement("a-image");
                         console.log(roomData)
+                        icon.classList.add("arrow");
                         icon.setAttribute("src",`#${roomData.icons[i].type}`); 
                         icon.setAttribute("position", `${roomData.icons[i].position[0]} ${roomData.icons[i].position[1]} ${roomData.icons[i].position[2]}`);
                         icon.setAttribute("animation","property:scale; from:1 1 1; to: 2 2 2; dur: 1000; loop:true; dir:alternate");
@@ -59,9 +107,10 @@
 </script>
   </head>
   <body>
-    <a-scene vr-mode-ui="enterARButton: #myEnterARButton" tour>
+    <a-scene vr-mode-ui="enabled:false" tour>
         <a id="myEnterARButton" href="#"></a>
         <a-assets>
+            <audio id="bgsound" src="whatisleft.mp3">
             <img id="livingroom" src="./livingroom.jpg">
             <img id="corridor" src="./corridor.jpg">
             <img id="stairs" src="./stairs.jpg">
@@ -70,8 +119,10 @@
         </a-assets>
         <a-entity cursor="rayOrigin:mouse"></a-entity>
         <a-entity id="camera-rig">
-            <a-camera  look-controls-enabled="true" position="0 1.6 0">
-                <a-sphere material="src:#livingroom" scale="0.1 0.1 0.1" position="0 -1.5 -2"></a-sphere>
+            <a-camera id = "camera"   look-controls-enabled="true" position="0 1.6 0">
+                
+                <!-- <a-sphere material="src:#corridor" rotation="0 180 0" scale="0.1 0.1 0.1" position="0 -1.5 -2"></a-sphere>
+                <a-sphere material="src:#livingroom" rotation="0 0 0" scale="0.1 0.1 0.1" position="0.3 -1.5 -2"></a-sphere> -->
             </a-camera>
         </a-entity>
       <!-- <a-sky id="tour-image" src="compound.jpg"></a-sky>
